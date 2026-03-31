@@ -118,6 +118,28 @@ def read_env(path: Path) -> dict[str, str]:
     return out
 
 
+def write_config_yaml(data: dict[str, str]) -> None:
+    """Write a minimal config.yaml so hermes picks up the model and provider."""
+    model = data.get("LLM_MODEL", "")
+    config_path = Path(HERMES_HOME) / "config.yaml"
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    config_path.write_text(f"""\
+model:
+  default: "{model}"
+  provider: "auto"
+
+terminal:
+  backend: "local"
+  timeout: 60
+  cwd: "/tmp"
+
+agent:
+  max_iterations: 50
+
+data_dir: "{HERMES_HOME}"
+""")
+
+
 def write_env(path: Path, data: dict[str, str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     cat_order = ["model", "provider", "tool",
@@ -207,8 +229,16 @@ class Gateway:
             return
         self.state = "starting"
         try:
+            # .env values take priority over Railway env vars.
+            # We build the env this way so hermes's own dotenv loading
+            # (which reads the same file) doesn't shadow our values.
             env = {**os.environ, "HERMES_HOME": HERMES_HOME}
             env.update(read_env(ENV_FILE))
+            model = env.get("LLM_MODEL", "")
+            provider_key = next((env.get(k, "") for k in PROVIDER_KEYS if env.get(k)), "")
+            print(f"[gateway] model={model or '⚠ NOT SET'} | provider_key={'set' if provider_key else '⚠ NOT SET'}", flush=True)
+            # Write config.yaml so hermes picks up the model (env vars alone aren't always enough)
+            write_config_yaml(read_env(ENV_FILE))
             self.proc = await asyncio.create_subprocess_exec(
                 "hermes", "gateway",
                 stdout=asyncio.subprocess.PIPE,
@@ -298,6 +328,7 @@ async def api_config_put(request: Request):
                 if k not in merged:
                     merged[k] = v
             write_env(ENV_FILE, merged)
+            write_config_yaml(merged)
         if restart:
             asyncio.create_task(gw.restart())
         return JSONResponse({"ok": True, "restarting": restart})
