@@ -1,9 +1,9 @@
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
 # Node.js LTS is required to compile the Hermes React dashboard.
-# We also install ffmpeg and ripgrep in the image.
+# We also install ffmpeg, ripgrep, and full Vim in the image.
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl ca-certificates git ffmpeg ripgrep vim-tiny && \
+    apt-get install -y --no-install-recommends curl ca-certificates git ffmpeg ripgrep vim && \
     curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
     apt-get install -y --no-install-recommends nodejs && \
     rm -rf /var/lib/apt/lists/*
