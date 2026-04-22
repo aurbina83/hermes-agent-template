@@ -83,6 +83,8 @@ ENV_VARS = [
     ("GLM_API_KEY",              "GLM / Z.AI",               "provider",  True),
     ("KIMI_API_KEY",             "Kimi",                     "provider",  True),
     ("MINIMAX_API_KEY",          "MiniMax",                  "provider",  True),
+    ("GOOGLE_API_KEY",           "Google / Gemini",          "provider",  True),
+    ("OPENCODE_GO_API_KEY",      "OpenCode Go",              "provider",  True),
     ("HF_TOKEN",                 "Hugging Face",             "provider",  True),
     ("PARALLEL_API_KEY",         "Parallel (search)",        "tool",      True),
     ("FIRECRAWL_API_KEY",        "Firecrawl (scrape)",       "tool",      True),
@@ -144,11 +146,18 @@ def read_env(path: Path) -> dict[str, str]:
     return out
 
 
-def write_config_yaml(data: dict[str, str]) -> None:
-    """Write a minimal config.yaml so hermes picks up the model and provider."""
+def write_config_yaml(data: dict[str, str], *, overwrite: bool = False) -> None:
+    """Seed a minimal config.yaml.
+
+    By default we only create the file if it does not already exist because
+    some deployments manage Hermes config directly on the persistent volume.
+    Pass overwrite=True for explicit reset/clear flows.
+    """
     model = data.get("LLM_MODEL", "")
     config_path = Path(HERMES_HOME) / "config.yaml"
     config_path.parent.mkdir(parents=True, exist_ok=True)
+    if config_path.exists() and not overwrite:
+        return
     config_path.write_text(f"""\
 model:
   default: "{model}"
@@ -648,7 +657,7 @@ async def api_config_reset(request: Request):
     async with cfg_lock:
         if ENV_FILE.exists():
             ENV_FILE.unlink()
-        write_config_yaml({})
+        write_config_yaml({}, overwrite=True)
     return JSONResponse({"ok": True})
 
 
