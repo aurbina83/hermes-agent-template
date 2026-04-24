@@ -53,15 +53,8 @@ ENV_FILE = Path(HERMES_HOME) / ".env"
 # Load .env into the process environment at startup so all subprocesses
 # (dashboard, gateway, terminal sessions, tools) inherit API keys like
 # GEMINI_API_KEY, GOOGLE_API_KEY, etc.
-if ENV_FILE.exists():
-    for _line in ENV_FILE.read_text().splitlines():
-        _line = _line.strip()
-        if _line and not _line.startswith("#") and "=" in _line:
-            _k, _, _v = _line.partition("=")
-            _v = _v.strip()
-            if len(_v) >= 2 and _v[0] == _v[-1] and _v[0] in ('"', "'"):
-                _v = _v[1:-1]
-            os.environ[_k.strip()] = _v
+from dotenv import load_dotenv
+load_dotenv(dotenv_path=ENV_FILE, override=True)
 
 PAIRING_DIR = Path(HERMES_HOME) / "pairing"
 PAIRING_TTL = 3600
