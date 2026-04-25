@@ -51,7 +51,7 @@ services:
   hermes-dashboard:
     image: nousresearch/hermes-agent:latest
     restart: unless-stopped
-    command: ["dashboard", "--host", "0.0.0.0", "--no-open"]
+    command: ["dashboard", "--host", "0.0.0.0", "--no-open", "--insecure"]
     depends_on:
       hermes-agent:
         condition: service_healthy
