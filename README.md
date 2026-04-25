@@ -105,10 +105,10 @@ cp .env.example .env
 docker compose up -d
 ```
 
-Then open `http://127.0.0.1:3000`.
+Then open `http://127.0.0.1:8080`.
 
 Notes:
-- `hermes-workspace` is published on `127.0.0.1:3000` by default
+- `hermes-workspace` is published on `127.0.0.1:8080` by default
 - `hermes-agent` stays internal to the Docker network and is **not** published to the host
 - `hermes-dashboard` is published on `127.0.0.1:9119` only, so the host can reach it without exposing it publicly
 - Hermes state is persisted with a host bind mount: `${HERMES_DATA_PATH:-/mnt/vol/hermes}:/opt/data`

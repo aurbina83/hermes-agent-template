@@ -90,5 +90,5 @@ services:
       COOKIE_SECURE: ${COOKIE_SECURE:-0}
       TRUST_PROXY: ${TRUST_PROXY:-0}
     ports:
-      - "${WORKSPACE_BIND:-127.0.0.1}:${WORKSPACE_PORT:-3000}:3000"
+      - "8080:3000"
 
