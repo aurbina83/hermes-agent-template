@@ -55,6 +55,8 @@ services:
     depends_on:
       hermes-agent:
         condition: service_healthy
+    environment:
+      GATEWAY_HEALTH_URL: http://hermes-agent:8642
     volumes:
       - ${HERMES_DATA_PATH:-/mnt/vol/hermes}:/opt/data
     expose:
