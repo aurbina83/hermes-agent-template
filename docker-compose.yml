@@ -92,6 +92,7 @@ services:
       HERMES_PASSWORD: ${HERMES_PASSWORD:?Set HERMES_PASSWORD in .env}
       COOKIE_SECURE: ${COOKIE_SECURE:-0}
       TRUST_PROXY: ${TRUST_PROXY:-0}
+      NODE_OPTIONS: ${NODE_OPTIONS:---enable-source-maps --trace-uncaught}
     volumes:
       - ${HERMES_DATA_PATH:-/mnt/vol/hermes}:/opt/data
     expose:
