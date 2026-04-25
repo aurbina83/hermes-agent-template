@@ -94,7 +94,27 @@ Railway Container
 
 The admin server runs on `$PORT` and manages the Hermes gateway as a child process. Config is stored in `/data/.hermes/.env` and `/data/.hermes/config.yaml`. Gateway stdout/stderr is captured into a ring buffer and streamed to the Logs panel.
 
-## Running Locally
+## Docker Compose: Hermes Workspace + Hermes Agent
+
+If you want the newer `hermes-workspace` stack instead of this older Railway-style admin wrapper, this repo now includes a Compose example based on the upstream `outsourc-e/hermes-workspace` deployment pattern.
+
+```bash
+cp .env.example .env
+# edit .env and set at least one provider key, API_SERVER_KEY, and HERMES_PASSWORD
+
+docker compose up -d
+```
+
+Then open `http://127.0.0.1:3000`.
+
+Notes:
+- `hermes-workspace` is published on `127.0.0.1:3000` by default
+- `hermes-agent` stays internal to the Docker network and is **not** published to the host
+- `hermes-dashboard` is published on `127.0.0.1:9119` only, so the host can reach it without exposing it publicly
+- Hermes state is persisted with a host bind mount: `${HERMES_DATA_PATH:-/mnt/vol/hermes}:/opt/data`
+- For Tailscale, keep the loopback bind and expose the workspace with Tailscale Serve or another private proxy
+
+## Running This Older Wrapper Locally
 
 ```bash
 docker build -t hermes-agent .
