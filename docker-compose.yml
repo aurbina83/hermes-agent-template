@@ -89,6 +89,6 @@ services:
       HERMES_PASSWORD: ${HERMES_PASSWORD:?Set HERMES_PASSWORD in .env}
       COOKIE_SECURE: ${COOKIE_SECURE:-0}
       TRUST_PROXY: ${TRUST_PROXY:-0}
-    ports:
-      - "8080:3000"
+    expose:
+      - "3000"
 
