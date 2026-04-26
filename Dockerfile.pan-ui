@@ -1,0 +1,34 @@
+# Single-container Pan-UI workspace on top of the official Hermes Agent image.
+# Pan-ui auto-launches the Hermes gateway locally, so no compose networking needed.
+# Everything runs in one container at port 3199.
+#
+# Build:  docker build -f Dockerfile.pan-ui -t hermes-pan-ui .
+
+FROM nousresearch/hermes-agent:latest
+
+# Install Node.js LTS + vim (and any other tools you want at runtime).
+RUN apt-get update && \
+  apt-get install -y --no-install-recommends \
+  curl \
+  ca-certificates \
+  vim \
+  && curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
+  && apt-get install -y --no-install-recommends nodejs \
+  && rm -rf /var/lib/apt/lists/*
+
+# Install pan-ui globally so "pan-ui" is available as a CLI.
+RUN npm install -g @euraika-labs/pan-ui
+
+# Hermes data lives at /opt/data (same volume mount as the gateway/dashboard).
+ENV HERMES_HOME=/opt/data/.hermes
+ENV HOME=/opt/data
+RUN mkdir -p /opt/data/.hermes
+
+# PORT is how pan-ui sets its listen port (default 3199).
+ENV PORT=3199
+
+EXPOSE 3199
+
+# pan-ui detects the hermes binary from the base image and auto-launches
+# `hermes gateway run` locally if one isn't already running.
+CMD ["pan-ui", "start"]
