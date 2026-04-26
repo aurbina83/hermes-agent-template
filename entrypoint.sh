@@ -18,4 +18,7 @@ HERMES_WORKSPACE_PASSWORD=${HERMES_WORKSPACE_PASSWORD:-}
 HERMES_WORKSPACE_SECRET=${HERMES_WORKSPACE_SECRET:-}
 EOF
 
+# Persistent /opt/data environment (venv, tools, browser-harness)
+if [ -f /opt/data/activate.sh ]; then source /opt/data/activate.sh; fi
+
 exec pan-ui start
