@@ -25,6 +25,10 @@ RUN git clone --depth 1 https://github.com/Euraika-Labs/pan-ui.git . && \
   npm run build && \
   ln -s /app/pan-ui/bin/pan-ui.mjs /usr/local/bin/pan-ui
 
+# The official Hermes image installs into a uv venv; add it to PATH so pan-ui
+# can find the `hermes` CLI and auto-launch the gateway.
+ENV PATH="/opt/hermes/.venv/bin:${PATH}"
+
 # Hermes data lives at /opt/data (same volume mount).
 ENV HERMES_HOME=/opt/data/.hermes
 ENV HOME=/opt/data
