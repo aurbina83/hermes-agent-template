@@ -1,23 +1,29 @@
 # Single-container Pan-UI workspace on top of the official Hermes Agent image.
-# Pan-ui auto-launches the Hermes gateway locally, so no compose networking needed.
+# Builds pan-ui from source inside the image so the .next production build is
+# guaranteed to exist (global npm install often ships a broken/corrupt build).
 # Everything runs in one container at port 3199.
 #
 # Build:  docker build -f Dockerfile.pan-ui -t hermes-pan-ui .
 
 FROM nousresearch/hermes-agent:latest
 
-# Install Node.js LTS + vim (and any other tools you want at runtime).
+# Install Node.js LTS + vim + git (git needed to clone pan-ui).
 RUN apt-get update && \
   apt-get install -y --no-install-recommends \
   curl \
   ca-certificates \
+  git \
   vim \
   && curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
   && apt-get install -y --no-install-recommends nodejs \
   && rm -rf /var/lib/apt/lists/*
 
-# Install pan-ui globally so "pan-ui" is available as a CLI.
-RUN npm install -g @euraika-labs/pan-ui
+# Clone pan-ui and build it from source so the .next production bundle is real.
+WORKDIR /app/pan-ui
+RUN git clone --depth 1 https://github.com/Euraika-Labs/pan-ui.git . && \
+  npm install && \
+  npm run build && \
+  ln -s /app/pan-ui/bin/pan-ui.mjs /usr/local/bin/pan-ui
 
 # Hermes data lives at /opt/data (same volume mount).
 ENV HERMES_HOME=/opt/data/.hermes
@@ -30,8 +36,7 @@ ENV PORT=3199
 EXPOSE 3199
 
 # entrypoint.sh writes Dokploy's env vars into pan-ui's .env.local at startup,
-# which lets setup() skip the interactive wizard without baking secrets into
-# the image.
+# which lets setup() skip the interactive wizard.
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]

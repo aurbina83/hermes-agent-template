@@ -4,7 +4,7 @@ set -e
 # pan-ui's setup() skips the interactive wizard only if .env.local exists
 # with content. Write whatever env vars Dokploy passed in so the file is
 # populated and setup() returns immediately.
-PANUI_ROOT="$(npm root -g)/@euraika-labs/pan-ui"
+PANUI_ROOT=/app/pan-ui
 
 cat > "$PANUI_ROOT/.env.local" <<EOF
 HERMES_HOME=${HERMES_HOME:-/opt/data/.hermes}
