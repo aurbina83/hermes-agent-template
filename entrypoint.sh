@@ -6,6 +6,9 @@ set -e
 # populated and setup() returns immediately.
 PANUI_ROOT=/app/pan-ui
 
+# Ensure hermes binary path survives into pan-ui's spawned server process.
+export PATH="/opt/hermes/.venv/bin:${PATH}"
+
 cat > "$PANUI_ROOT/.env.local" <<EOF
 HERMES_HOME=${HERMES_HOME:-/opt/data/.hermes}
 HERMES_API_BASE_URL=${HERMES_API_BASE_URL:-http://127.0.0.1:8642}
